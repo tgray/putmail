@@ -1,0 +1,131 @@
+Questions answered here:
+
+* What's putmail.py for?
+* What's the real name of the program? putmail.py or Putmail?
+* Can I replace the sendmail binary with a link to putmail.py?
+* How can I configure Mutt to use putmail.py?
+* I try to set up putmail.py with my GMail account, but when trying to send
+  mail, putmail.py seems to freeze forever and mail is never sent out, why?
+* How can I connect to SSL SMTP servers?
+* I am unable to read the standard error output and putmail.py exits with
+  error status without printing anything to the log file, what's the problem?
+
+-------------------------------------------------------------------------------
+
+Q: What's putmail.py for?
+
+A: The traditional MTAs like Sendmail, Postfix, qmail and others are very 
+complex programs. They usually run in the background and turn your machine into 
+an SMTP server. Most of them provide a 'sendmail' command that programs can use 
+to send mail out or to local users. That command usually takes the mail and 
+injects it in a mail queue, to be sent by another different program.
+
+They have many fancy features to modify mail, route it, deliver it and make 
+aliases for local users, among many many other things. The only feature some 
+users need from all of this is the ability to send mail out to someone over the 
+Internet, because the program they use to compose their mail lacks that 
+support. Mutt, for example, doesn't have SMTP support and can't send mail 
+without a 'sendmail' command. If you only want to send mail messages with Mutt 
+or want to have only one SMTP server installed in your network and send the 
+mail with it, putmail.py can help you.
+
+-------------------------------------------------------------------------------
+
+Q: What's the real name of the program? putmail.py or Putmail?
+
+A: When I was planning to write putmail.py, I didn't really know if I was going
+to write one program or a suite or programs. In fact, the second option sounded
+more feasible to me, because I thought I could write a program on its own and
+then a 'sendmail' frontend to it. In the end, I only wrote putmail.py. I could,
+however, write more programs to increase functionality. This is why the
+*project* name is Putmail and the name of the only program so far is putmail.py.
+
+-------------------------------------------------------------------------------
+
+Q: Can I replace the sendmail binary with a link to putmail.py?
+
+A: You can, but you shouldn't do it. putmail.py doesn't deliver mail to local
+users and many system programs depend on that functionality. For example, cron
+daemons usually mail command outputs to the user with sendmail. That would fail
+if they used putmail.py.
+
+-------------------------------------------------------------------------------
+
+Q: How can I configure Mutt to use putmail.py?
+
+A: Edit your ~/.muttrc file and add a line like the following one:
+
+	set sendmail="putmail.py"
+
+   Or use the full path to putmail.py (it may change in your system):
+
+	set sendmail="/usr/local/bin/putmail.py"
+
+-------------------------------------------------------------------------------
+
+Q: I try to set up putmail.py with my GMail account, but when trying to send
+mail, putmail.py seems to freeze forever and mail is never sent out, why?
+
+A: GMail instructions mention two possible ports to connect with smtp.gmail.com.
+Those are 465 and 587. For some reason that I don't really know, the first one
+doesn't seem to work. Indicate port 587 and everything should work fine. Note
+that, because the connection is encrypted, it takes a little bit more time
+to establish the connection and send the message. However, it should not take
+more than 30 or 60 seconds to send an empty message out, in the worst case.
+
+Update: I just tried KMail + TLS with port 465 and it suffers the same problem.
+However, changing from TLS to SSL allowed me to use that port. TLS and SSL are
+different mechanisms to encrypt the connection, and it seems the first port is
+for SSL and the second one for TLS. putmail.py only supports TLS, so you should
+use the second port.
+
+Update 2: Port 465 is the smpts port as confirmed by /etc/services. My copy of
+that file says it may be over TLS too, but all websites I've seen talk about
+SMTP-SSL only. Port 587 is the official port for Message Submission Agents or
+MSAs, that is, services listening for clients to authenticate and inject
+messages in the SMTP traffic. See RFC 2476.
+
+-------------------------------------------------------------------------------
+
+Q: How can I connect to SSL SMTP servers?
+
+A: putmail.py doesn't directly support SSL connections. However, you can make
+it work easily with the external program stunnel. Long story short, stunnel is
+a program that tunnels or forwards connections to servers or clients and
+provides SSL for them. You'll see it's very easy. Suppose you really want to
+use the SSL GMail server, which is listening on port 465 at smtp.gmail.com.
+
+Create a stunnel configuration file (or merge the following changes to your
+existing one) with the following contents:
+
+	client = yes
+	pid =
+	socket = l:TCP_NODELAY=1
+	socket = r:TCP_NODELAY=1
+
+	[ssmtp]
+	accept  = localhost:64000
+	connect = smtp.gmail.com:465
+
+Let's call it $HOME/stunnel_to_gmail.conf. Now you have to launch stunnel with
+that configuration file. This depends on the system. In my computer, I'd do
+the following:
+
+	/usr/sbin/stunnel $HOME/stunnel_to_gmail.conf
+
+stunnel will run in the background listening on 127.0.0.1 port 64000 (you can
+only connect to it from your own computer) and will contact smtp.gmail.com at
+port 465, doing all the SSL work. That is, you can configure putmail.py to
+use the SMTP server localhost at port 64000 (a normal connection, no
+encryption) and you'll be virtually talking to smtp.gmail.com on port 465.
+
+Of course, you're free to change the listening address, port and the same for
+the server. The "[ssmtp]" label is also user-defined. I could have called it
+"[gmail]" if I wanted.
+
+-------------------------------------------------------------------------------
+
+Q: I am unable to read the standard error output and putmail.py exits with
+   error status without printing anything to the log file, what's the problem?
+
+A: That can only be that the HOME environment variable is not set.

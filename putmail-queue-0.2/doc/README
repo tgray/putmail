@@ -1,0 +1,12 @@
+This is my first try at providing a queuing system for putmail.py. 
+Inside, you'll find two programs: putmail_enqueue.py and 
+putmail_dequeue.py.
+
+To use them, you must first create the directory $HOME/.putmail/queue/. 
+It's recommended that only you have access to it.
+
+Install the program by running install.sh as root if necessary.
+Optionally, edit the file first to specify destination directories.
+
+Usage instructions are in the man page. Use "man putmail-queue" to
+read it. It is a recommended one-time read.

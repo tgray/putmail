@@ -1,0 +1,251 @@
+.TH "putmail.py" "1" "1.4" "Ricardo Garcia Gonzalez" "User Manuals"
+.SH "NAME"
+.LP 
+putmail.py \- SMTP client
+.SH "SYNTAX"
+.LP 
+putmail.py [\fIoption...\fP] \fIrecipient...\fP
+.SH "DESCRIPTION"
+.LP 
+\fBputmail.py\fR is a very lightweight MTA or SMTP client that may
+replace the \fBsendmail\fR command when used by MUAs that lack SMTP
+support.
+.LP 
+Usually, \fBputmail.py\fR is not called directly from the
+command line. Instead, programs are configured to deliver mail
+using \fBputmail.py\fR. It accepts all the options
+\fBsendmail\fR does, but ignores most of them. You can find
+all the options in the \fBCOMMAND LINE OPTIONS\fR section.
+.LP 
+The program reads an e\-mail message from standard input and
+tries to deliver it to the specified recipients using the
+apropiate configuration file, which is
+.IP 
+\fI$HOME/.putmail/putmailrc\fR
+.LP 
+by default. As you see, configuration files are per\-user. For
+security reasons, you may want to set permissions so only you
+have access to the configuration directory.
+.LP 
+The exact configuration file name is chosen according to the
+address used in the \fIFrom\fR header of the e\-mail message,
+which allows you to have several configuration files and bind
+SMTP servers to e\-mail addresses.
+.LP 
+For example, if the e\-mail message looks like:
+.IP 
+(headers...)
+.br 
+\fBFrom: Joe User <juser@example.com>\fR
+.br 
+(headers...)
+.br 
+
+.br 
+(message contents...)
+.br 
+
+.LP 
+The program will try to use the file
+.IP 
+\fI$HOME/.putmail/juser@example.com\fR
+.LP 
+If that file is not
+available, it will fall back to the default one.
+.LP 
+Any errors and warnings are printed to standard error and also
+to the log file named
+.IP 
+\fI$HOME/.putmail/putmail.log\fR
+.LP 
+except for the error message about the HOME environment
+variable not present, for obvious reasons.
+.SH "CONFIGURATION FILE"
+.LP 
+Configuration files have the same format as INI files. They must
+have a section named \fIconfig\fR and, at least, two options:
+\fIserver\fR and \fIemail\fR. Those set the SMTP server to use
+and the envelope from address used when contacting the server. It is
+a good idea to set this to the same address you use in the \fIFrom\fR
+header of the e\-mail message, but not strictly necessary.
+\fBputmail.py\fR will not change the \fIFrom\fR header. Example:
+.IP 
+[config]
+.br 
+server = smtp.example.com
+.br 
+email = user@example.com
+.LP 
+Please note that the text indentation in the example should not be
+present in the real file, where all the lines should start at column
+number 1. You can authenticate to the SMTP server and use TLS
+indicating more options. This is the complete list:
+.TP 
+\fIserver\fR
+The SMTP server to use.
+.TP 
+\fIemail\fR
+The envelope from address used when contacting with the server.
+.TP 
+\fIusername\fR
+The username used when authenticating to the SMTP server. You
+must, then, indicate a password with the \fIpassword\fR
+option. By default no authentication is used.
+.TP 
+\fIpassword\fR
+The password used when authenticating to the SMTP server.
+.TP 
+\fIport\fR
+The server port. The default value is 25.
+.TP 
+\fItls\fR
+Boolean option to enable or disable TLS. It is disabled by
+default or when its value is \fIno\fR, \fI0\fR, \fIoff\fR
+or \fIfalse\fR. Set it to \fIyes\fR, \fI1\fR, \fIon\fR
+or \fItrue\fR to enable TLS.
+.TP 
+\fIquiet\fR
+Boolean option, disabled by default. When active, errors
+and warnings related to communication with the SMTP server
+will not be printed on screen. See the \fItls\fR option
+for possible values. Use it with care and once you know
+your configuration works. In most cases this will not be
+needed. However, sometimes warnings about improper
+connection shutdown can get really annoying. Errors
+related to malformed configuration files, absence of
+message recipients and others will still be printed.
+.SH "COMMAND LINE OPTIONS"
+.LP 
+.TP 
+\fB\-\-\fP
+Marks end of options. Remaining arguments are recipients.
+.TP 
+\fB\-t\fR
+Take recipients from the \fITo\fR, \fICc\fR and \fIBcc\fR
+message headers.
+.TP 
+\fB\-f\fR \fIfrom_address\fP
+Use this address as the SMTP protocol envelope from address,
+replacing the \fIemail\fR option in the configuration file.
+.LP 
+And the following options are accepted but ignored:
+.LP 
+\fB\-Ac\fR
+.br 
+\fB\-Am\fR
+.br 
+\fB\-ba\fR
+.br 
+\fB\-bm\fR
+.br 
+\fB\-bs\fR
+.br 
+\fB\-bt\fR
+.br 
+\fB\-bv\fR
+.br 
+\fB\-bv\fR
+.br 
+\fB\-G\fR
+.br 
+\fB\-i\fR
+.br 
+\fB\-n\fR
+.br 
+\fB\-v\fR
+.br 
+\fB\-bd\fR
+.br 
+\fB\-bD\fR
+.br 
+\fB\-bh\fR
+.br 
+\fB\-bH\fR
+.br 
+\fB\-bi\fR
+.br 
+\fB\-bp\fR
+.br 
+\fB\-bP\fR
+.br 
+\fB\-q\fR
+.br 
+\fB\-Q\fR
+.br 
+\fB\-qf\fR
+.br 
+\fB\-B\fR \fIargument\fP
+.br 
+\fB\-C\fR \fIargument\fP
+.br 
+\fB\-d\fR \fIargument\fP
+.br 
+\fB\-D\fR \fIargument\fP
+.br 
+\fB\-F\fR \fIargument\fP
+.br 
+\fB\-h\fR \fIargument\fP
+.br 
+\fB\-L\fR \fIargument\fP
+.br 
+\fB\-N\fR \fIargument\fP
+.br 
+\fB\-O\fR \fIargument\fP
+.br 
+\fB\-p\fR \fIargument\fP
+.br 
+\fB\-Q\fR \fIargument\fP
+.br 
+\fB\-R\fR \fIargument\fP
+.br 
+\fB\-r\fR \fIargument\fP
+.br 
+\fB\-V\fR \fIargument\fP
+.br 
+\fB\-X\fR \fIargument\fP
+.br 
+\fB\-qG\fR \fIargument\fP
+.br 
+\fB\-qI\fR \fIargument\fP
+.br 
+\fB\-qQ\fR \fIargument\fP
+.br 
+\fB\-qR\fR \fIargument\fP
+.br 
+\fB\-qS\fR \fIargument\fP
+.br 
+\fB\-q!I\fR \fIargument\fP
+.br 
+\fB\-q!Q\fR \fIargument\fP
+.br 
+\fB\-q!R\fR \fIargument\fP
+.br 
+\fB\-q!S\fR \fIargument\fP
+.br 
+\fB\-q\fItext\fR\fP
+.br 
+\fB\-qp\fItext\fR\fP
+.br 
+\fB\-o\fItext\fR \fItext\fR\fP
+.SH "FILES"
+.LP 
+.TP 
+\fI$HOME/.putmail/\fP
+Configuration directory
+.TP 
+\fI$HOME/.putmail/putmailrc\fP
+Default configuration file
+.TP 
+\fI$HOME/.putmail/putmail.log\fP
+Log file for errors and warnings
+.SH "ENVIRONMENT VARIABLES"
+.LP 
+.TP 
+\fBHOME\fP
+Specifies the home directory of the invoking user.
+.SH "AUTHORS"
+.LP 
+Ricardo Garcia Gonzalez: http://sourceforge.net/users/rg3/
+.SH "SEE ALSO"
+.LP 
+mutt(1) muttrc(5) nail(1) mail(1) sendmail(1)

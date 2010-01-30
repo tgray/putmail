@@ -1,0 +1,81 @@
+.TH "putmail-queue" "1" "0.2" "Ricardo Garcia Gonzalez" "User Manuals"
+.SH "NAME"
+.LP 
+putmail_enqueue.py \- Inserts messages into message queue
+.br 
+putmail_dequeue.py \- Calls putmail.py for each enqueued message
+.SH "SYNTAX"
+.LP 
+putmail_enqueue.py [arguments]
+.br 
+putmail_dequeue.py
+.SH "DESCRIPTION"
+.LP 
+These two programs provide a queuing system for \fBputmail.py\fR.
+The rest of this manual page supposes you know what \fBputmail.py\fR
+is and that you are familiarized with it, just like a regular
+user. See \fBputmail.py(1)\fR.
+.LP 
+A queuing system can be used if you want to compose one or
+several e\-mail messages in a row but you will be unable to
+send them inmediatelly. Or maybe your connection is slow and
+you prefer composing all the messages first and send them
+all together later.
+.LP 
+Usage is very simple. \fBputmail_enqueue.py\fR is supposed to
+receive the same program arguments as \fBputmail.py\fR and read the
+e\-mail message from standard input, like \fBputmail.py\fR does. It
+is the program you should use in the same place you used the
+normal \fBputmail.py\fR program. On a side note, it will not check
+arguments or message correctness. All messages are saved to the
+following directory:
+.IP 
+$HOME/.putmail/queue/
+.LP 
+\fIThe program will not create the directory\fR, so you must create it
+first. That is important. Make sure you have read and write access to
+that directory. As e\-mail messages are going to be saved in there, you
+may want to restrict access to that directory for security or privacy
+reasons.
+.LP 
+Later, once you have some messages in the mail queue, call
+\fBputmail_dequeue.py\fR. The program does not receive any arguments
+and will, in fact, ignore them. It will iterate through each e\-mail
+message and try to send each one with \fBputmail.py\fR, so
+\fBputmail.py\fR should be in your \fBPATH\fR. After each successful
+delivery, it will try to remove the e\-mail message from the queue. The
+program will print what it is doing and the result of each operation for
+each message. Lines begin with the message file name between brackets.
+Should \fBputmail.py\fR fail delivering the message or any other problem
+encountered, it will be printed on screen.
+.LP 
+The last three lines of output are a summary of how many messages were in
+the queue, how many were sent and how many were deleted. Under normal
+circumstances, all three numbers should be the same. If they are not, check
+the rest of the output for problems encountered.
+.SH "OPTIONS"
+.LP 
+\fBputmail_enqueue.py\fR should receive the same arguments as \fBputmail.py\fR,
+due to the fact that \fBputmail_dequeue.py\fR will use them when calling
+the former later.
+.LP 
+\fBputmail_dequeue.py\fR ignores all arguments.
+.SH "FILES"
+.TP 
+$HOME/.putmail/queue/
+Queue directory. Make sure you have read and write
+access to this directory.
+.SH "ENVIRONMENT VARIABLES"
+.LP 
+.TP 
+\fBHOME\fP
+Specifies the home directory for the invoking user.
+.TP 
+\fBPATH\fP
+\fIputmail.py\fR should be in your path.
+.SH "AUTHORS"
+.LP 
+Ricardo Garcia <sarbalap\-sourceforge@yahoo.es>
+.SH "SEE ALSO"
+.LP 
+putmail.py(1)
