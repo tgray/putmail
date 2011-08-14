@@ -8,7 +8,11 @@
 # This tiny script is distributed under the X Consortium License. See
 # LICENSE file for more details.
 #
-# Version: 1.4
+# Versions > 1.4 have been slightly modified and maintained by Tim Gray.
+# https://github.com/tgray/putmail
+
+__version_info__ = (1, 4, 1)
+__version__ = '.'.join([str(i) for i in __version_info__])
 
 import ConfigParser
 import smtplib
@@ -171,6 +175,7 @@ theLogFile = os.path.join(os.environ[HOME_EV], CONFIG_DIRECTORY, LOG_FILE)
 try:
 
 	program_args = sys.argv[1:]	# Program arguments
+	print_info = False		# prints program information
 	direct_exit = False		# Exit directly?
 
 	### The lists below contain IGNORED OPTIONS ONLY, see the loop.	###
@@ -195,6 +200,10 @@ try:
 	while (len(program_args) > 0):
 		if program_args[0] == '--': # Remaining options are recipients
 			theRecipients.extend(program_args[1:])
+			break
+		elif program_args[0] == '--version':
+			print_info = True
+			direct_exit = True
 			break
 		elif program_args[0] == '-t': # Take recipients from message
 			theRcpsFromMailFlag = True
@@ -244,6 +253,14 @@ try:
 # Problem in some option argument
 except IndexError:
 	exit_forcing_print(ERROR_OPTION_ARGS)
+
+# print program info
+if print_info:
+	programName = os.path.basename(sys.argv[0])
+	version = "%s %s" % (programName, __version__)
+	print version
+	print "  type `man %s` for more information" % programName
+
 
 # Options indicated direct exit
 if direct_exit:
