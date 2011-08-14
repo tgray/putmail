@@ -18,6 +18,9 @@ import sys
 import socket
 import datetime
 
+import subprocess as sb
+import shlex
+
 ##################################
 # General program initialization #
 ##################################
@@ -37,6 +40,7 @@ OPTION_EMAIL = 'email'
 OPTION_TLS = 'tls'
 OPTION_LOGIN = 'username'
 OPTION_PASSWORD = 'password'
+OPTION_KEYCHAIN= 'keychain'
 OPTION_PORT = 'port'
 OPTION_QUIET = 'quiet'
 
@@ -57,6 +61,7 @@ ERROR_CONFIG_NONEXISTANT = 'Error: config file %s not present'
 ERROR_CONFIG_UNREADABLE = 'Error: config file present but not readable'
 ERROR_CONFIG_CREATE = 'Error: unable to create sample config file'
 ERROR_CONFIG_PARSE = 'Error: parse error reading config file'
+ERROR_CONFIG_KEYCHAIN = 'Error: invalid keychain in config file'
 ERROR_READ_MAIL = 'Error: parse error reading the mail message'
 ERROR_NO_RECIPIENTS = 'Error: no recipients for the message'
 ERROR_TLS = 'Error: malformed option "%s"' % OPTION_TLS
@@ -133,6 +138,19 @@ def force_print(str):
 def check_status((code, message)):
 	if code >= FIRST_ERROR_CODE:
 		exit_conditional_print(ERROR_OTHER % (code, message))
+
+def keychain(keychainType):
+	if keychainType == 'osx':
+		return osxkeychain
+
+def osxkeychain(service, type="internet"):
+    cmd = """/usr/bin/security find-%s-password -gs %s""" % (type, service)
+    args = shlex.split(cmd)
+    t = sb.check_output(args, stderr=sb.STDOUT)
+    lines = t.split('\n')
+    passwd = lines[0]
+    passwd = passwd.split('"')[1]
+    return passwd
 
 ### Check for HOME present (needed later, checking now saves a lot of work) ###
 if not os.environ.has_key(HOME_EV):
@@ -303,9 +321,11 @@ if (not config.has_section(CONFIG_SECTION) or
 		not config.has_option(CONFIG_SECTION, OPTION_SERVER) or
 		not config.has_option(CONFIG_SECTION, OPTION_EMAIL) or
 		(config.has_option(CONFIG_SECTION, OPTION_LOGIN) and
-		 not config.has_option(CONFIG_SECTION, OPTION_PASSWORD)) or
-		(config.has_option(CONFIG_SECTION, OPTION_PASSWORD) and
-		not config.has_option(CONFIG_SECTION, OPTION_LOGIN))):
+		 not (config.has_option(CONFIG_SECTION, OPTION_PASSWORD) or
+			 config.has_option(CONFIG_SECTION, OPTION_KEYCHAIN))) or
+		 ((config.has_option(CONFIG_SECTION, OPTION_PASSWORD) or
+			 config.has_option(CONFIG_SECTION, OPTION_KEYCHAIN)) and not
+			 config.has_option(CONFIG_SECTION, OPTION_LOGIN))):
 	exit_forcing_print(ERROR_CONFIG_PARSE)
 
 ### Extract the necessary configuration parameters ##
@@ -331,7 +351,15 @@ except ValueError:
 
 if config.has_option(CONFIG_SECTION, OPTION_LOGIN):	# Login/password
 	theSMTPLogin = config.get(CONFIG_SECTION, OPTION_LOGIN)
-	theSMTPPassword = config.get(CONFIG_SECTION, OPTION_PASSWORD)
+	try:
+		# if config.has_option(CONFIG_SECTION, OPTION_KEYCHAIN):
+		keychainType = config.get(CONFIG_SECTION, OPTION_KEYCHAIN)
+		keychain_func = keychain(keychainType)
+		theSMTPPassword = keychain_func(theSMTPServer)
+	except TypeError:
+		exit_forcing_print(ERROR_CONFIG_KEYCHAIN)
+	except ConfigParser.NoOptionError:
+		theSMTPPassword = config.get(CONFIG_SECTION, OPTION_PASSWORD)
 	theAuthenticateFlag = True
 
 try:	# Port
@@ -426,3 +454,4 @@ if len(rejected) > 0:
 
 # Good enough
 sys.exit()
+# vim: set ft=python noet sts=4 sw=4 ts=4 : 
