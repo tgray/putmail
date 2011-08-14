@@ -8,7 +8,7 @@
 # This tiny script is distributed under the X Consortium License. See
 # LICENSE file for more details.
 #
-# Versions > 1.4 have been slightly modified and maintained by Tim Gray.
+# 2011-08-14 - versions > 1.4 have been slightly modified by Tim Gray.
 # https://github.com/tgray/putmail
 
 __version_info__ = (1, 4, 1)
@@ -260,7 +260,6 @@ if print_info:
 	version = "%s %s" % (programName, __version__)
 	print version
 	print "  type `man %s` for more information" % programName
-
 
 # Options indicated direct exit
 if direct_exit:
