@@ -63,7 +63,7 @@ Note
 This [putmail](https://github.com/tgray/putmail) is a modified version
 of the original putmail.py found at <http://sourceforge.net/users/rg3/>.
 The github version is maintained by Tim Gray and was branched from the
-original at version 1.4.The original version was written by Ricardo
+original at version 1.4.  The original version was written by Ricardo
 Garcia Gonzalez.  All references to 'me' in this document were written
 by Ricardo.
 
