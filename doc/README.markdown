@@ -1,8 +1,8 @@
 About
------
+=====
 
 putmail
-=======
+-------
 
 Putmail is a very lightweight MTA or SMTP client, distributed under the
 terms of the X Consortium License. It is designed to replace the
@@ -25,7 +25,7 @@ project page to do so.
 
 
 putmail queue
-=============
+-------------
 
 There is a simple queuing system for putmail.py.  It consists of two
 scripts: putmail_enqueue.py and putmail_dequeue.py.
@@ -38,27 +38,27 @@ it. It is a recommended one-time read.
 
 
 Usage
------
+=====
 
 Installing
-==========
+----------
 
 Run install.sh (probably as root), optionally using the environment
 variables PREFIX and DESTDIR to modify the installation parameters.
 
 
 Configuring
-===========
+-----------
 
 The manpage explains the basic configuration and all the options for the
 config file. It's very easy.
 
 
 Other
------
+=====
 
 Note
-====
+----
 
 This [putmail](https://github.com/tgray/putmail) is a modified version
 of the original putmail.py found at <http://sourceforge.net/users/rg3/>.
@@ -69,7 +69,7 @@ by Ricardo.
 
 
 In case of problems
-===================
+-------------------
 
 First off, read the FAQ (at doc/FAQ or in the system's putmail.py
 documentation directory). Your question may be answered there. Then,
@@ -83,7 +83,7 @@ problem (if they're not too big, 100 KiB can be considered the limit).
 
 
 License
-=======
+-------
 
 putmail.py is distributed under the X Consortium license. Please
 read the LICENSE or doc/LICENSE file.
